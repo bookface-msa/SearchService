@@ -40,7 +40,7 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
             KeyStore ks = KeyStore.getInstance("pkcs12");
             ks.load(null, null);
 
-            FileInputStream fis = new FileInputStream("C:/Users/John/elastic certs/http_ca.crt");
+            FileInputStream fis = new FileInputStream("C:/Users/youss/elasticsearch/http_ca.crt");
             BufferedInputStream bis = new BufferedInputStream(fis);
 
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -61,7 +61,7 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
         return ClientConfiguration.builder()
                 .connectedTo("localhost:9200")
                 .usingSsl(context)
-                .withBasicAuth("elastic", "9=MZs85BjqvuI1QIh*-B")
+                .withBasicAuth("elastic", "5+23vq-RTZ1gOVFJJYCT")
                 .build();
 
     }
