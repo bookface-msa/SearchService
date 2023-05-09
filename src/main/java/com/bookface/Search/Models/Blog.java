@@ -1,12 +1,10 @@
 package com.bookface.Search.Models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.boot.context.properties.bind.Nested;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.MultiField;
 
 import java.util.ArrayList;
 import java.util.List;

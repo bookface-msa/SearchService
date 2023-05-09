@@ -1,7 +1,5 @@
 package com.bookface.Search.Repos;
-
 import com.bookface.Search.Models.Blog;
-import com.bookface.Search.Models.User;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 import java.util.List;
