@@ -6,6 +6,7 @@ import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -32,15 +33,25 @@ import java.security.cert.CertificateFactory;
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
 
+    @Value("${elastic.username}")
+    String username;
+
+    @Value("${elastic.password}")
+    String password;
+
+    @Value("${elastic.cert}")
+    String cert;
+
     @Override
     public ClientConfiguration clientConfiguration() {
 
         SSLContext context = null;
         try {
+
             KeyStore ks = KeyStore.getInstance("pkcs12");
             ks.load(null, null);
 
-            FileInputStream fis = new FileInputStream("C:/Users/youss/elasticsearch/http_ca.crt");
+            FileInputStream fis = new FileInputStream(cert);
             BufferedInputStream bis = new BufferedInputStream(fis);
 
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -61,7 +72,7 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
         return ClientConfiguration.builder()
                 .connectedTo("localhost:9200")
                 .usingSsl(context)
-                .withBasicAuth("elastic", "5+23vq-RTZ1gOVFJJYCT")
+                .withBasicAuth(username, password)
                 .build();
 
     }
