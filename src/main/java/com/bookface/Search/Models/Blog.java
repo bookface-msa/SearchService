@@ -2,12 +2,13 @@ package com.bookface.Search.Models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 @Document(indexName = "blogs")
 public class Blog {
@@ -18,8 +19,8 @@ public class Blog {
     @Field(type = FieldType.Text, name = "title")
     private String title;
 
-    @Field(type = FieldType.Date, name = "date")
-    private String date;
+    @Field(type = FieldType.Date, name = "date", format = DateFormat.date_hour_minute_second)
+    private LocalDateTime date;
 
     @Field(type = FieldType.Text, name = "author-id")
     @JsonProperty("author-id")
@@ -28,8 +29,8 @@ public class Blog {
     @Field(type = FieldType.Text, name = "content")
     private String content;
 
-    @Field(type = FieldType.Nested, name = "tags")
-    private ArrayList<Tag> tags;
+    @Field(type = FieldType.Text, name = "tags")
+    private String[] tags;
 
 
     public String getId() {
@@ -44,11 +45,11 @@ public class Blog {
         this.title = title;
     }
 
-    public String getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
@@ -68,11 +69,11 @@ public class Blog {
         this.content = content;
     }
 
-    public ArrayList<Tag> getTags() {
+    public String[] getTags() {
         return tags;
     }
 
-    public void setTags(ArrayList<Tag> tags) {
+    public void setTags(String[] tags) {
         this.tags = tags;
     }
 }
