@@ -3,10 +3,13 @@ package com.bookface.Search.Controllers;
 import com.bookface.Search.Models.Blog;
 import com.bookface.Search.Models.Tag;
 import com.bookface.Search.Models.User;
+import com.bookface.Search.Records.BlognUser;
+import com.bookface.Search.Records.PageSettings;
 import com.bookface.Search.Repos.BlogRepository;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,78 +18,62 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("unchecked")
 @RestController
 @RequestMapping("/blog")
 public class BlogController {
-
-    BlogRepository blogRepository;
+     BlogRepository blogRepository;
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
-    private DirectExchange exchange;
+    private DirectExchange exchangeBlog;
 
-    public BlogController(BlogRepository blogRepository){
+    public BlogController(BlogRepository blogRepository) {
         this.blogRepository = blogRepository;
     }
 
     @GetMapping
-    List<BlognUser> get(@RequestParam String content){
-        System.out.println(content);
-        List<Blog> result = blogRepository.findByContentOrTitle(content, content);
+    @Cacheable(value = "blogCache")
+    List<BlognUser> get(@RequestParam String content, @RequestParam(defaultValue = "0") String pageNum,
+                        @RequestParam(defaultValue = "10") String pageSize) {
 
-        List<BlognUser> res = new ArrayList<>();
+        System.out.println(" [x] Requesting blog search for " + content);
+        List<BlognUser> res = (List<BlognUser>) rabbitTemplate.convertSendAndReceive(exchangeBlog.getName(), "search"
+                , new PageSettings(content, pageNum, pageSize));
+        System.out.println(" [.] Received response for " + content);
 
-        for(Blog b: result){
-            System.out.println(" [x] Requesting to update " + b.getAuthorId());
-            User user = (User) rabbitTemplate.convertSendAndReceive(exchange.getName(), "getById", b.getAuthorId());
-            System.out.println(" [.] Got " + user);
-            BlognUser bu = new BlognUser(b, user);
-            res.add(bu);
-        }
         return res;
     }
 
-    record BlognUser(Blog blog, User user){};
-
-
-    @RequestMapping("Tag") //blogTag
-    @GetMapping
-    List<Blog> getTag(@RequestParam String tag){
-        List<Blog> result = blogRepository.findByTagUsingDeclaredQuery(tag);
-        return result;
+    @GetMapping("/tag")
+    @Cacheable(value = "blogCache")
+    List<BlognUser> getTag(@RequestParam String content, @RequestParam(defaultValue = "0") String pageNum,
+                           @RequestParam(defaultValue = "10") String pageSize) {
+        System.out.println(" [x] Requesting blog search for tag " + content);
+        List<BlognUser> res = (List<BlognUser>) rabbitTemplate.convertSendAndReceive(exchangeBlog.getName(),
+                "searchTags", new PageSettings(content, pageNum, pageSize));
+        System.out.println(" [.] Received response for tag " + content);
+        return res;
     }
 
-
     @PostMapping
-    Blog add(@RequestBody Blog blog){
-      //  System.out.println(blog.getTags()[0]);
-        Blog result = blogRepository.save(blog);
-        return result;
+    Blog add(@RequestBody Blog blog) {
+        //  System.out.println(blog.getTags()[0]);
+        Blog res = (Blog) rabbitTemplate.convertSendAndReceive(exchangeBlog.getName(), "create", blog);
+        return res;
     }
 
     @PutMapping
-    Blog editBlog(@RequestBody Blog blog){
-
-        Optional<Blog> oldBlog = blogRepository.findById(blog.getId());
-
-        if(oldBlog.isPresent()){
-            Blog updated = oldBlog.get();
-            updated.setDate(blog.getDate() == null? updated.getDate() : blog.getDate());
-            updated.setTags(blog.getTags() == null? updated.getTags() : blog.getTags());
-            updated.setContent(blog.getContent() == null? updated.getContent() : blog.getContent());
-            updated.setTitle(blog.getTitle() == null? updated.getTitle() : blog.getTitle());
-            updated.setAuthorId(blog.getAuthorId() == null? updated.getAuthorId() : blog.getAuthorId());
-            Blog result = blogRepository.save(updated);
-            return result;
-        }else{
-            throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Blog with id " + blog.getId() + " was not found");
-        }
+    Blog editBlog(@RequestBody Blog blog) throws ResponseStatusException {
+        Object result = rabbitTemplate.convertSendAndReceive(exchangeBlog.getName(), "update", blog);
+        System.out.println(result);
+        if (result != null) return (Blog) result;
+        throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Blog with id " + blog.getId() + " was not found");
     }
-    @DeleteMapping
-    void delete(@RequestParam String id){
-        blogRepository.deleteById(id);
 
-        System.out.println("Deleted blog " + id);
+    @DeleteMapping
+    void delete(@RequestParam String id) {
+        rabbitTemplate.convertSendAndReceive(exchangeBlog.getName(), "delete", id);
     }
 
 }

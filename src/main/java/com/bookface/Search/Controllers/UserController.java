@@ -1,10 +1,12 @@
 package com.bookface.Search.Controllers;
 
 import com.bookface.Search.Models.User;
+import com.bookface.Search.Records.PageSettings;
 import com.bookface.Search.Repos.UserRepository;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,16 +21,27 @@ public class UserController {
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
-    private DirectExchange exchange;
+    private DirectExchange exchangeUser;
 
     public UserController(UserRepository userRepository){
         this.userRepository = userRepository;
     }
 
+    @Cacheable(value="userCache")
+    public User getUserById(String id){
+        System.out.println(" [x] Requesting to update " + id);
+        User user = (User) rabbitTemplate.convertSendAndReceive(exchangeUser.getName(), "getById", id);
+        System.out.println(" [.] Got " + user);
+
+        return user;
+    }
     @GetMapping
-    List<User> getAll(@RequestParam String username){
+    @Cacheable(value = "userCache")
+    List<User> getAll(@RequestParam String username, @RequestParam(defaultValue = "0") String pageNum,
+                      @RequestParam(defaultValue = "10") String pageSize){
         System.out.println(" [x] Requesting " + username);
-        List<User> response = (List<User>) rabbitTemplate.convertSendAndReceive(exchange.getName(), "getAll", username);
+        List<User> response = (List<User>) rabbitTemplate.convertSendAndReceive(exchangeUser.getName(), "getAll",
+                new PageSettings(username, pageNum, pageSize));
         System.out.println(" [.] Got '" + response + "'");
         return response;
     }
@@ -36,17 +49,16 @@ public class UserController {
     @PostMapping
     User addUser(@RequestBody User user){
         System.out.println(" [x] Requesting to add " + user);
-        User response = (User) rabbitTemplate.convertSendAndReceive(exchange.getName(), "addUser", user);
+        User response = (User) rabbitTemplate.convertSendAndReceive(exchangeUser.getName(), "addUser", user);
         System.out.println(" [.] Got '" + response + "'");
         return response;
     }
 
+
     @PutMapping
     User editUser(@RequestBody User user){
 
-        System.out.println(" [x] Requesting to update " + user);
-        User old = (User) rabbitTemplate.convertSendAndReceive(exchange.getName(), "getById", user.getId());
-        System.out.println(" [.] Got " + old);
+        User old = getUserById(user.getId());
 
         if(old != null){
             old.setBio(user.getBio() == null? old.getBio() : user.getBio());
@@ -54,7 +66,7 @@ public class UserController {
             old.setImageurl(user.getImageurl() == null? old.getImageurl() : user.getImageurl());
 
             System.out.println(" [x] Requesting to set " + old);
-            User result = (User) rabbitTemplate.convertSendAndReceive(exchange.getName(), "addUser", old);
+            User result = (User) rabbitTemplate.convertSendAndReceive(exchangeUser.getName(), "addUser", old);
             System.out.println(" [.] Got " + result);
             return result;
         }else{
@@ -65,9 +77,8 @@ public class UserController {
     @DeleteMapping
     void deleteUser(@RequestParam String id){
         System.out.println(" [x] Requesting to delete "+ id);
-        rabbitTemplate.convertSendAndReceive(exchange.getName(), "delUser", id);
+        rabbitTemplate.convertSendAndReceive(exchangeUser.getName(), "delUser", id);
         System.out.println(" [.] Delete request successful for " + id);
-        return;
     }
 
 

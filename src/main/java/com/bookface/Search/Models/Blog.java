@@ -76,4 +76,6 @@ public class Blog {
     public void setTags(String[] tags) {
         this.tags = tags;
     }
+
+
 }

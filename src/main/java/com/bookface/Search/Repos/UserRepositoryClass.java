@@ -16,16 +16,6 @@ public class UserRepositoryClass implements UserRepository{
         System.out.println("hello");
     }
 
-    @Override
-    public List<User> findByUsername(String username) {
-        System.out.println(username);
-        return null;
-    }
-
-    @Override
-    public List<User> findByUsernameContaining(String username) {
-        return null;
-    }
 
     @Override
     public Page<User> searchSimilar(User entity, String[] fields, Pageable pageable) {
@@ -99,6 +89,11 @@ public class UserRepositoryClass implements UserRepository{
 
     @Override
     public Page<User> findAll(Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public Page<User> findByUsernameContaining(String username, Pageable pageable) {
         return null;
     }
 }

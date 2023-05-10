@@ -1,29 +1,34 @@
 package com.bookface.Search.Controllers;
 
 import com.bookface.Search.Models.User;
+import com.bookface.Search.Records.PageSettings;
 import com.bookface.Search.Repos.UserRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Optional;
 
 @Component
-public class ElasticHandler {
+public class UserElasticHandler {
 
     @Autowired
     UserRepository userRepository;
 
 
     @RabbitListener(queues = "elastic.users.getAll")
-        List<User> getAll(String username) {
-            System.out.println(" [x] Received request for " + username);
-            List<User> result = userRepository.findByUsernameContaining(username);
+        List<User> getAll(PageSettings pageSettings) {
+        String username = pageSettings.content();
+        int pageNum = Integer.parseInt(pageSettings.pageNum());
+        int pageSize = Integer.parseInt(pageSettings.pageSize());
+        System.out.println(" [x] Received request for " + username);
+        Page<User> result = userRepository.findByUsernameContaining(username, PageRequest.of(pageNum,pageSize));
         System.out.println(" [.] Returned " + result);
-        return result;
+        return result.getContent();
     }
 
     @RabbitListener(queues = "elastic.users.getById")
