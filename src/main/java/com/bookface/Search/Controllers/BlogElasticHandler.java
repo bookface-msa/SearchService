@@ -33,10 +33,10 @@ public class BlogElasticHandler {
     @Autowired
     private UserController userController;
 
-    List<BlognUser> getUsersForBlogs(List<Blog> blogs){
+    List<BlognUser> getUsersForBlogs(List<Blog> blogs) {
         List<BlognUser> res = new ArrayList<BlognUser>();
 
-        for(Blog b: blogs){
+        for (Blog b : blogs) {
             User user = userController.getUserById(b.getAuthorId());
             BlognUser bu = new BlognUser(b, user);
             res.add(bu);
@@ -46,47 +46,42 @@ public class BlogElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.blogs.search")
-    List< BlognUser> search( PageSettings pageSettings){
+    List<BlognUser> search(PageSettings pageSettings) {
         String content = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());
         int pageSize = Integer.parseInt(pageSettings.pageSize());
-        Page<Blog> blogs = blogRepository.findByContentOrTitle(content, content, PageRequest.of(pageNum,pageSize));
-        List< BlognUser>res = getUsersForBlogs(blogs.getContent());
+        Page<Blog> blogs = blogRepository.findByContentOrTitle(content, content, PageRequest.of(pageNum, pageSize));
+        List<BlognUser> res = getUsersForBlogs(blogs.getContent());
         return res;
     }
 
-    @RabbitListener(queues="elastic.blogs.searchTags")
-    List< BlognUser> searchTags( PageSettings pageSettings){
+    @RabbitListener(queues = "elastic.blogs.searchTags")
+    List<BlognUser> searchTags(PageSettings pageSettings) {
         String content = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());
         int pageSize = Integer.parseInt(pageSettings.pageSize());
-        Page<Blog> blogs = blogRepository.findByTagUsingDeclaredQuery(content, PageRequest.of(pageNum,pageSize));
-        List< BlognUser> res = getUsersForBlogs(blogs.getContent());
+        Page<Blog> blogs = blogRepository.findByTagUsingDeclaredQuery(content, PageRequest.of(pageNum, pageSize));
+        List<BlognUser> res = getUsersForBlogs(blogs.getContent());
         return res;
     }
 
     @RabbitListener(queues = "elastic.blogs.create")
-    Blog add(Blog blog){
-        try {
-            Blog result = blogRepository.save(blog);
-            return result;
-        }catch (Error e){
-            System.out.println(e.fillInStackTrace());
-        }
-        return null;
+    Blog add(Blog blog) {
+        Blog result = blogRepository.save(blog);
+        return result;
     }
 
     @RabbitListener(queues = "elastic.blogs.update")
-    Blog edit (Blog blog){
+    Blog edit(Blog blog) {
         Optional<Blog> oldBlog = blogRepository.findById(blog.getId());
 
-        if(oldBlog.isPresent()){
+        if (oldBlog.isPresent()) {
             Blog updated = oldBlog.get();
-            updated.setDate(blog.getDate() == null? updated.getDate() : blog.getDate());
-            updated.setTags(blog.getTags() == null? updated.getTags() : blog.getTags());
-            updated.setContent(blog.getContent() == null? updated.getContent() : blog.getContent());
-            updated.setTitle(blog.getTitle() == null? updated.getTitle() : blog.getTitle());
-            updated.setAuthorId(blog.getAuthorId() == null? updated.getAuthorId() : blog.getAuthorId());
+            updated.setDate(blog.getDate() == null ? updated.getDate() : blog.getDate());
+            updated.setTags(blog.getTags() == null ? updated.getTags() : blog.getTags());
+            updated.setContent(blog.getContent() == null ? updated.getContent() : blog.getContent());
+            updated.setTitle(blog.getTitle() == null ? updated.getTitle() : blog.getTitle());
+            updated.setAuthorId(blog.getAuthorId() == null ? updated.getAuthorId() : blog.getAuthorId());
             Blog result = blogRepository.save(updated);
             return result;
         }
@@ -94,11 +89,9 @@ public class BlogElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.blogs.delete")
-    void delete (String id){
+    void delete(String id) {
         blogRepository.deleteById(id);
     }
-
-
 
 
 }
