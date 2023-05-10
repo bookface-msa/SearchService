@@ -30,4 +30,11 @@ public class BlogController {
         return result;
     }
 
+    @DeleteMapping
+    void delete(@RequestParam String id){
+        blogRepository.deleteById(id);
+
+        System.out.println("Deleted blog " + id);
+    }
+
 }

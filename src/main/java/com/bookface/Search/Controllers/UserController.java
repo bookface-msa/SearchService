@@ -62,5 +62,13 @@ public class UserController {
         }
     }
 
+    @DeleteMapping
+    void deleteUser(@RequestParam String id){
+        System.out.println(" [x] Requesting to delete "+ id);
+        rabbitTemplate.convertSendAndReceive(exchange.getName(), "delUser", id);
+        System.out.println(" [.] Delete request successful for " + id);
+        return;
+    }
+
 
 }

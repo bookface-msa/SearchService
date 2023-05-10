@@ -48,5 +48,13 @@ public class ElasticHandler {
         return saved;
     }
 
+    @RabbitListener(queues = "elastic.users.delUser")
+    String delUser(String id){
+        System.out.println(" [x] Received request to delete " + id);
+        userRepository.deleteById(id);
+        System.out.println(" [.] Deleted " + id);
+        return "success";
+    }
+
 
 }

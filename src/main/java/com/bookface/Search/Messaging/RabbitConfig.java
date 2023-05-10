@@ -35,6 +35,9 @@ public class RabbitConfig {
         return new Queue("elastic.users.getById");
     }
 
+    @Bean
+    public Queue queueDel(){ return new Queue("elastic.users.delUser"); }
+
 
     @Bean
     Binding binding0(DirectExchange exchange, Queue queue0) {
@@ -47,6 +50,11 @@ public class RabbitConfig {
     @Bean
     Binding binding2(DirectExchange exchange, Queue queue2) {
         return BindingBuilder.bind(queue2).to(exchange).with("getById");
+    }
+
+    @Bean
+    Binding bindingDel(DirectExchange exchange, Queue queueDel){
+        return BindingBuilder.bind(queueDel).to(exchange).with("delUser");
     }
 
     @Bean
