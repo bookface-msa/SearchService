@@ -67,8 +67,13 @@ public class BlogElasticHandler {
 
     @RabbitListener(queues = "elastic.blogs.create")
     Blog add(Blog blog){
-        Blog result = blogRepository.save(blog);
-        return result;
+        try {
+            Blog result = blogRepository.save(blog);
+            return result;
+        }catch (Error e){
+            System.out.println(e.fillInStackTrace());
+        }
+        return null;
     }
 
     @RabbitListener(queues = "elastic.blogs.update")

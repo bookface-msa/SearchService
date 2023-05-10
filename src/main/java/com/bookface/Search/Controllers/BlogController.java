@@ -58,7 +58,7 @@ public class BlogController {
 
     @PostMapping
     Blog add(@RequestBody Blog blog) {
-        //  System.out.println(blog.getTags()[0]);
+        System.out.println(blog.getDate());
         Blog res = (Blog) rabbitTemplate.convertSendAndReceive(exchangeBlog.getName(), "create", blog);
         return res;
     }
