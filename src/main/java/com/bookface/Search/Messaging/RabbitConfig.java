@@ -103,4 +103,24 @@ public class RabbitConfig {
         return BindingBuilder.bind(queueDeleteBlog).to(exchangeBlog).with("delete");
     }
 
+//  ==========================TAGS===========================
+
+    @Bean
+    DirectExchange exchangeTag() { return new DirectExchange("elastic.tags");}
+
+    @Bean
+    public Queue queueSearchTags() { return new Queue("elastic.tags.search");}
+
+    @Bean
+    public Queue queueSaveTags(){ return new Queue("elastic.tags.save");}
+
+    @Bean
+    Binding bindingSearchTags(DirectExchange exchangeTag, Queue queueSearchTags){
+        return BindingBuilder.bind(queueSearchTags).to(exchangeTag).with("search");
+    }
+    @Bean
+    Binding bindingSaveTag(DirectExchange exchangeTag, Queue queueSaveTags) {
+        return BindingBuilder.bind(queueSaveTags).to(exchangeTag).with("save");
+    }
+
 }

@@ -22,15 +22,20 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/blog")
 public class BlogController {
-     BlogRepository blogRepository;
+    BlogRepository blogRepository;
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private DirectExchange exchangeBlog;
+    @Autowired
+    private DirectExchange exchangeTag;
 
     public BlogController(BlogRepository blogRepository) {
         this.blogRepository = blogRepository;
     }
+
+    @Autowired
+    TagController tagController;
 
     @GetMapping
     @Cacheable(value = "blogCache")
@@ -60,6 +65,12 @@ public class BlogController {
     Blog add(@RequestBody Blog blog) {
         //System.out.println(blog.getDate());
         Blog res = (Blog) rabbitTemplate.convertSendAndReceive(exchangeBlog.getName(), "create", blog);
+
+        for (String t : blog.getTags()) {
+//            tagController.add(t);
+            rabbitTemplate.convertAndSend(exchangeTag.getName(), "save", t); //no need to wait for response
+        }
+
         return res;
     }
 

@@ -21,7 +21,7 @@ public class UserElasticHandler {
 
 
     @RabbitListener(queues = "elastic.users.getAll")
-        List<User> getAll(PageSettings pageSettings) {
+    List<User> getAll(PageSettings pageSettings) {
         String username = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());
         int pageSize = Integer.parseInt(pageSettings.pageSize());
