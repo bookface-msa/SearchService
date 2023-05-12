@@ -1,5 +1,9 @@
 package com.bookface.Search.Messaging;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
@@ -15,10 +19,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-
     @Bean
     public MessageConverter converter() {
-        return new Jackson2JsonMessageConverter();
+        ObjectMapper mapper = JsonMapper.builder() // or different mapper for other format
+                .addModule(new Jdk8Module())
+                .addModule(new JavaTimeModule())
+                .build();
+
+        return new Jackson2JsonMessageConverter(mapper);
     }
 
 //  ==========================USERS===========================

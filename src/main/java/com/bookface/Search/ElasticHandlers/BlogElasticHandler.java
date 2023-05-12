@@ -1,5 +1,6 @@
-package com.bookface.Search.Controllers;
+package com.bookface.Search.ElasticHandlers;
 
+import com.bookface.Search.Controllers.UserController;
 import com.bookface.Search.Models.Blog;
 import com.bookface.Search.Models.User;
 import com.bookface.Search.Records.BlognUser;
@@ -11,9 +12,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
+
 
 import java.util.ArrayList;
 import java.util.List;

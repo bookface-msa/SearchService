@@ -1,23 +1,11 @@
 package com.bookface.Search;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -31,7 +19,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.time.format.DateTimeFormatter;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "com.bookface.Search.Repos")
@@ -47,6 +34,7 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
     @Value("${elastic.cert}")
     String cert;
+
 
     @Override
     public ClientConfiguration clientConfiguration() {
@@ -83,16 +71,16 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
     }
 
-    @Bean
-    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-        Jackson2ObjectMapperBuilder builder =
-                new Jackson2ObjectMapperBuilder()
-                        .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                        .serializers(
-                                new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")))
-                        .serializationInclusion(JsonInclude.Include.NON_NULL);
-        return new MappingJackson2HttpMessageConverter(builder.build());
-    }
+//    @Bean
+//    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+//        Jackson2ObjectMapperBuilder builder =
+//                new Jackson2ObjectMapperBuilder()
+//                        .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+//                        .serializers(
+//                                new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")))
+//                        .serializationInclusion(JsonInclude.Include.NON_NULL);
+//        return new MappingJackson2HttpMessageConverter(builder.build());
+//    }
 
 //    @Bean
 //    public RestClient restClient(){

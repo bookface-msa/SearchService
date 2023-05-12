@@ -1,7 +1,5 @@
 package com.bookface.Search.Controllers;
 
-
-import com.bookface.Search.Repos.TagRepository;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +13,7 @@ import java.util.List;
 @RequestMapping("/tags")
 public class TagController {
 
-    @Autowired
-    TagRepository tagRepository;
+
     @Autowired
     RabbitTemplate rabbitTemplate;
     @Autowired

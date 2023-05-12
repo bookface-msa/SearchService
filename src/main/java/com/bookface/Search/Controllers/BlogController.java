@@ -1,8 +1,6 @@
 package com.bookface.Search.Controllers;
 
 import com.bookface.Search.Models.Blog;
-import com.bookface.Search.Models.Tag;
-import com.bookface.Search.Models.User;
 import com.bookface.Search.Records.BlognUser;
 import com.bookface.Search.Records.PageSettings;
 import com.bookface.Search.Repos.BlogRepository;
@@ -14,9 +12,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
 
 @SuppressWarnings("unchecked")
 @RestController

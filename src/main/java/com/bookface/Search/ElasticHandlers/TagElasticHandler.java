@@ -1,4 +1,4 @@
-package com.bookface.Search.Controllers;
+package com.bookface.Search.ElasticHandlers;
 
 import com.bookface.Search.Models.Tag;
 import com.bookface.Search.Repos.TagRepository;
@@ -19,10 +19,13 @@ public class TagElasticHandler {
 
     @RabbitListener(queues = "elastic.tags.search")
     List<String> search(String tag) {
+
+//        tag = tag.replace(" ", "\\\\ ");
         System.out.println(" [x] Received request for " + tag);
         List<String> result =
-                tagRepository.findByTagStartingWithOrderByRelevancyDesc(tag, PageRequest.of(0,10))
+                tagRepository.findByTagUsingDeclaredQuery(tag, PageRequest.of(0, 10))
                         .stream()
+                        .sorted((Tag a, Tag b) -> b.getRelevancy() - a.getRelevancy())
                         .map(Tag::getTag)
                         .toList();
         System.out.println(" [.] Returned " + result);
