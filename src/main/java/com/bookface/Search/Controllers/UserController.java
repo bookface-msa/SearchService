@@ -1,5 +1,7 @@
 package com.bookface.Search.Controllers;
 
+import com.bookface.Search.Commands.CommandTranslator;
+import com.bookface.Search.ElasticHandlers.UserElasticHandler;
 import com.bookface.Search.Models.User;
 import com.bookface.Search.Records.OptionalUser;
 import com.bookface.Search.Records.PageSettings;
@@ -12,6 +14,10 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -25,17 +31,19 @@ public class UserController {
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private DirectExchange exchangeUser;
+    @Autowired
+    private UserElasticHandler userElasticHandler;
+    @Autowired
+    public CommandTranslator commands; //needs to be a component containing all the classes name to package
 
     public UserController(UserRepository userRepository) {
+
         this.userRepository = userRepository;
     }
 
     @Cacheable(value = "userCache")
     public User getUserById(String id) {
-        System.out.println(" [x] Requesting to update " + id);
-        OptionalUser user = (OptionalUser) rabbitTemplate.convertSendAndReceive(exchangeUser.getName(), "getById",
-                id);
-        System.out.println(" [.] Got " + user);
+        OptionalUser user = userElasticHandler.getUserWithId(id);
 
         if (user != null && !user.isNull())
             return user.user();
@@ -46,22 +54,29 @@ public class UserController {
     @GetMapping
     @Cacheable(value = "userCache")
     List<User> getAll(@RequestParam String username, @RequestParam(defaultValue = "0") String pageNum,
-                      @RequestParam(defaultValue = "10") String pageSize) {
-        if (username.contains(" "))
-            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "username cannot contain spaces");
-        System.out.println(" [x] Requesting " + username);
-        List<User> response = (List<User>) rabbitTemplate.convertSendAndReceive(exchangeUser.getName(), "getAll",
-                new PageSettings(username, pageNum, pageSize));
-        System.out.println(" [.] Got '" + response + "'");
-        return response;
+                      @RequestParam(defaultValue = "10") String pageSize) throws ClassNotFoundException,
+            NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        Class<?> cls = this.getClass().getClassLoader().loadClass(commands.getName("SearchUserByName"));
+        System.out.println(cls);
+
+        // get the command and run exec
+        // here is a command Will always be false see below
+        Constructor<?> cst = cls.getConstructor(new Class<?>[]{});
+        Object command = cst.newInstance(new Object[]{});
+
+        HashMap<String, Object> input = new HashMap<>();
+        input.put("username", username);
+        input.put("pageNum", pageNum);
+        input.put("pageSize", pageSize);
+
+        Method execMethod = cls.getMethod("execute", input.getClass());
+        return (List<User>) execMethod.invoke(command, new Object[] { input });
     }
 
     @PostMapping
     User addUser(@RequestBody User user) {
-        System.out.println(" [x] Requesting to add " + user);
-        User response = (User) rabbitTemplate.convertSendAndReceive(exchangeUser.getName(), "addUser", user);
-        System.out.println(" [.] Got '" + response + "'");
-        return response;
+        return userElasticHandler.addUser(user);
     }
 
 

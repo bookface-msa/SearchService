@@ -33,11 +33,15 @@ public class BlogElasticHandler {
     @Autowired
     private UserController userController;
 
-    List<BlognUser> getUsersForBlogs(List<Blog> blogs) {
+    @Autowired
+    private UserElasticHandler userElasticHandler;
+
+    public List<BlognUser> getUsersForBlogs(List<Blog> blogs) {
         List<BlognUser> res = new ArrayList<BlognUser>();
 
         for (Blog b : blogs) {
-            User user = userController.getUserById(b.getAuthorId());
+            User user = userElasticHandler.getUserWithId(b.getAuthorId()).user();
+//            User user = userController.getUserById(b.getAuthorId());
             BlognUser bu = new BlognUser(b, user);
             res.add(bu);
         }
@@ -46,7 +50,9 @@ public class BlogElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.blogs.search")
-    List<BlognUser> search(PageSettings pageSettings) {
+    public List<BlognUser> search(PageSettings pageSettings) {
+
+        System.out.println("------Blog Search for: " + pageSettings.content());
         String content = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());
         int pageSize = Integer.parseInt(pageSettings.pageSize());
@@ -56,7 +62,7 @@ public class BlogElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.blogs.searchTags")
-    List<BlognUser> searchTags(PageSettings pageSettings) {
+    public List<BlognUser> searchTags(PageSettings pageSettings) {
         String content = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());
         int pageSize = Integer.parseInt(pageSettings.pageSize());
@@ -66,13 +72,13 @@ public class BlogElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.blogs.create")
-    Blog add(Blog blog) {
+    public Blog add(Blog blog) {
         Blog result = blogRepository.save(blog);
         return result;
     }
 
     @RabbitListener(queues = "elastic.blogs.update")
-    Blog edit(Blog blog) {
+    public Blog edit(Blog blog) {
         Optional<Blog> oldBlog = blogRepository.findById(blog.getId());
 
         if (oldBlog.isPresent()) {
@@ -89,7 +95,7 @@ public class BlogElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.blogs.delete")
-    void delete(String id) {
+    public void delete(String id) {
         blogRepository.deleteById(id);
     }
 

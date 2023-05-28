@@ -1,5 +1,6 @@
 package com.bookface.Search.Controllers;
 
+import com.bookface.Search.ElasticHandlers.BlogElasticHandler;
 import com.bookface.Search.Models.Blog;
 import com.bookface.Search.Records.BlognUser;
 import com.bookface.Search.Records.PageSettings;
@@ -27,6 +28,9 @@ public class BlogController {
     @Autowired
     private DirectExchange exchangeTag;
 
+    @Autowired
+    private BlogElasticHandler blogElasticHandler;
+
     public BlogController(BlogRepository blogRepository) {
         this.blogRepository = blogRepository;
     }
@@ -39,35 +43,26 @@ public class BlogController {
     List<BlognUser> get(@RequestParam String content, @RequestParam(defaultValue = "0") String pageNum,
                         @RequestParam(defaultValue = "10") String pageSize) {
 
-        System.out.println(" [x] Requesting blog search for " + content);
-        List<BlognUser> res = (List<BlognUser>) rabbitTemplate.convertSendAndReceive(exchangeBlog.getName(), "search"
-                , new PageSettings(content, pageNum, pageSize));
-        System.out.println(" [.] Received response for " + content);
-
-        return res;
+        return blogElasticHandler.search(new PageSettings(content, pageNum, pageSize));
     }
 
     @GetMapping("/tag")
     @Cacheable(value = "blogCache")
     List<BlognUser> getTag(@RequestParam String content, @RequestParam(defaultValue = "0") String pageNum,
                            @RequestParam(defaultValue = "10") String pageSize) {
-        System.out.println(" [x] Requesting blog search for tag " + content);
-        List<BlognUser> res = (List<BlognUser>) rabbitTemplate.convertSendAndReceive(exchangeBlog.getName(),
-                "searchTags", new PageSettings(content, pageNum, pageSize));
-        System.out.println(" [.] Received response for tag " + content);
-        return res;
+
+        return blogElasticHandler.searchTags(new PageSettings(content, pageNum, pageSize));
     }
 
     @PostMapping
     Blog add(@RequestBody Blog blog) {
-        //System.out.println(blog.getDate());
-        Blog res = (Blog) rabbitTemplate.convertSendAndReceive(exchangeBlog.getName(), "create", blog);
+
+       Blog res = blogElasticHandler.add(blog);
 
         for (String t : blog.getTags()) {
-//            tagController.add(t);
+            //tagController.add(t);
             rabbitTemplate.convertAndSend(exchangeTag.getName(), "save", t); //no need to wait for response
         }
-
         return res;
     }
 

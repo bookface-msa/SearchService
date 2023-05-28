@@ -1,5 +1,7 @@
 package com.bookface.Search.Controllers;
 
+import com.bookface.Search.ElasticHandlers.TagElasticHandler;
+import com.bookface.Search.Models.Tag;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +20,16 @@ public class TagController {
     RabbitTemplate rabbitTemplate;
     @Autowired
     DirectExchange exchangeTag;
+    @Autowired
+    TagElasticHandler tagElasticHandler;
 
 
     @GetMapping
     @Cacheable(value = "tagCache")
-    List<String> get(@RequestParam String tag) {
+    List<String> get(@RequestParam String tag, @RequestParam(defaultValue = "0") String pageNum,
+                     @RequestParam(defaultValue = "10") String pageSize) {
         System.out.println(" [x] Requesting tag search for " + tag);
-        List<String> res = (List<String>) rabbitTemplate.convertSendAndReceive(exchangeTag.getName(), "search"
-                , tag);
-        System.out.println(" [.] Received response for " + res);
-        return res;
+        return tagElasticHandler.search(tag, pageNum, pageSize);
     }
 
 //    @PostMapping

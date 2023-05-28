@@ -21,7 +21,7 @@ public class UserElasticHandler {
 
 
     @RabbitListener(queues = "elastic.users.getAll")
-    List<User> getAll(PageSettings pageSettings) {
+    public List<User> getAll(PageSettings pageSettings) {
         String username = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());
         int pageSize = Integer.parseInt(pageSettings.pageSize());
@@ -33,7 +33,7 @@ public class UserElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.users.getById")
-    OptionalUser getUserWithId(String id) {
+    public OptionalUser getUserWithId(String id) {
         System.out.println(" [x] Received request for user with id " + id);
         Optional<User> result = userRepository.findById(id);
 
@@ -47,7 +47,7 @@ public class UserElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.users.addUser")
-    User addUser(User user){
+    public User addUser(User user){
         System.out.println(" [x] Received request to add " + user);
         User saved = userRepository.save(user);
         System.out.println(" [.] Returned " + saved);
@@ -55,7 +55,7 @@ public class UserElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.users.delUser")
-    String delUser(String id){
+    public String delUser(String id){
         System.out.println(" [x] Received request to delete " + id);
         userRepository.deleteById(id);
         System.out.println(" [.] Deleted " + id);

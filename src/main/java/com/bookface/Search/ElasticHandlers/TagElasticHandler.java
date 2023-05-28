@@ -6,8 +6,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -18,23 +18,22 @@ public class TagElasticHandler {
     TagRepository tagRepository;
 
     @RabbitListener(queues = "elastic.tags.search")
-    List<String> search(String tag) {
+    public List<String> search(String tag, String pageNum, String pageSize) {
 
-//        tag = tag.replace(" ", "\\\\ ");
         System.out.println(" [x] Received request for " + tag);
+        Sort sort = Sort.by("relevancy").descending();
         List<String> result =
-                tagRepository.findByTagUsingDeclaredQuery(tag, PageRequest.of(0, 10))
-                        .stream()
-                        .sorted((Tag a, Tag b) -> b.getRelevancy() - a.getRelevancy())
-                        .map(Tag::getTag)
-                        .toList();
+                tagRepository.findByTagOrderByRelevancyDesc(tag,
+                                PageRequest.of(Integer.parseInt(pageNum), Integer.parseInt(pageSize)).withSort(sort))
+                        .stream().map(Tag::getTag).toList();
+
         System.out.println(" [.] Returned " + result);
         return result;
     }
 
     @RabbitListener(queues = "elastic.tags.save")
     @RabbitHandler
-    void addTag(String tag) {
+    public void addTag(String tag) {
         System.out.println(" [x] Received request for " + tag);
         Tag newTag;
         Optional<Tag> t = tagRepository.findById(tag);
