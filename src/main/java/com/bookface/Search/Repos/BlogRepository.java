@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface BlogRepository extends ElasticsearchRepository<Blog, String> {
 
-    Page<Blog> findByContentOrTitle(String content, String title, Pageable pageable);
+    Page<Blog> findByBodyOrTitle(String content, String title, Pageable pageable);
 //    List<Blog> findByTagsContaining(Tag tags);
 
     @Query("{\"bool\": {\"must\": [{\"match\": {\"tags\": \"?0\"}}]}}")

@@ -56,7 +56,7 @@ public class BlogElasticHandler {
         String content = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());
         int pageSize = Integer.parseInt(pageSettings.pageSize());
-        Page<Blog> blogs = blogRepository.findByContentOrTitle(content, content, PageRequest.of(pageNum, pageSize));
+        Page<Blog> blogs = blogRepository.findByBodyOrTitle(content, content, PageRequest.of(pageNum, pageSize));
         List<BlognUser> res = getUsersForBlogs(blogs.getContent());
         return res;
     }
@@ -71,21 +71,23 @@ public class BlogElasticHandler {
         return res;
     }
 
-    @RabbitListener(queues = "elastic.blogs.create")
+//    @RabbitListener(queues = "elastic.blogs.create")
     public Blog add(Blog blog) {
         Blog result = blogRepository.save(blog);
+        System.out.println("Blog with id " + blog.getId() + " added to elasticsearch");
         return result;
     }
 
-    @RabbitListener(queues = "elastic.blogs.update")
+//    @RabbitListener(queues = "elastic.blogs.update")
     public Blog edit(Blog blog) {
         Optional<Blog> oldBlog = blogRepository.findById(blog.getId());
 
         if (oldBlog.isPresent()) {
             Blog updated = oldBlog.get();
-            updated.setDate(blog.getDate() == null ? updated.getDate() : blog.getDate());
+            updated.setUpdatedAt(blog.getUpdatedAt() == null ? updated.getUpdatedAt() : blog.getUpdatedAt());
+            updated.setCreatedAt(blog.getCreatedAt() == null ? updated.getCreatedAt() : blog.getCreatedAt());
             updated.setTags(blog.getTags() == null ? updated.getTags() : blog.getTags());
-            updated.setContent(blog.getContent() == null ? updated.getContent() : blog.getContent());
+            updated.setBody(blog.getBody() == null ? updated.getBody() : blog.getBody());
             updated.setTitle(blog.getTitle() == null ? updated.getTitle() : blog.getTitle());
             updated.setAuthorId(blog.getAuthorId() == null ? updated.getAuthorId() : blog.getAuthorId());
             Blog result = blogRepository.save(updated);
@@ -94,7 +96,7 @@ public class BlogElasticHandler {
         return null;
     }
 
-    @RabbitListener(queues = "elastic.blogs.delete")
+//    @RabbitListener(queues = "elastic.blogs.delete")
     public void delete(String id) {
         blogRepository.deleteById(id);
     }

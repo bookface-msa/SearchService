@@ -22,18 +22,6 @@ public class User {
     @Field(type = FieldType.Text, name = "bio")
     private String bio;
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public void setImageurl(String imageurl) {
-        this.imageurl = imageurl;
-    }
-
     @Field(type = FieldType.Text, name = "imageurl")
     private String imageurl;
 
@@ -52,4 +40,17 @@ public class User {
     public String getImageurl() {
         return imageurl;
     }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void setImageurl(String imageurl) {
+        this.imageurl = imageurl;
+    }
+
 }

@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -74,7 +71,7 @@ public class RabbitConfig {
 
 //  ==========================BLOGS===========================
     @Bean
-    DirectExchange exchangeBlog() { return new DirectExchange("elastic.blogs");}
+    TopicExchange exchangeBlog() { return new TopicExchange("elastic.blogs");}
 
     @Bean
     public Queue queueFindBlog() { return new Queue("elastic.blogs.search");}
@@ -91,23 +88,23 @@ public class RabbitConfig {
     @Bean
     public Queue queueDeleteBlog(){return new Queue("elastic.blogs.delete");}
     @Bean
-    Binding bindingFindBlog(DirectExchange exchangeBlog, Queue queueFindBlog){
+    Binding bindingFindBlog(TopicExchange exchangeBlog, Queue queueFindBlog){
         return BindingBuilder.bind(queueFindBlog).to(exchangeBlog).with("search");
     }
     @Bean
-    Binding bindingFindTags(DirectExchange exchangeBlog, Queue queueFindTags){
+    Binding bindingFindTags(TopicExchange exchangeBlog, Queue queueFindTags){
         return BindingBuilder.bind(queueFindTags).to(exchangeBlog).with("searchTags");
     }
     @Bean
-    Binding bindingCreateBlog(DirectExchange exchangeBlog, Queue queueCreateBlog){
+    Binding bindingCreateBlog(TopicExchange exchangeBlog, Queue queueCreateBlog){
         return BindingBuilder.bind(queueCreateBlog).to(exchangeBlog).with("create");
     }
     @Bean
-    Binding bindingUpdateBlog(DirectExchange exchangeBlog, Queue queueUpdateBlog){
+    Binding bindingUpdateBlog(TopicExchange exchangeBlog, Queue queueUpdateBlog){
         return BindingBuilder.bind(queueUpdateBlog).to(exchangeBlog).with("update");
     }
     @Bean
-    Binding bindingDeleteBlog(DirectExchange exchangeBlog, Queue queueDeleteBlog){
+    Binding bindingDeleteBlog(TopicExchange exchangeBlog, Queue queueDeleteBlog){
         return BindingBuilder.bind(queueDeleteBlog).to(exchangeBlog).with("delete");
     }
 

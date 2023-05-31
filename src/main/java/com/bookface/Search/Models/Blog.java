@@ -13,7 +13,6 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 @Document(indexName = "blogs")
 public class Blog {
@@ -27,19 +26,24 @@ public class Blog {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", shape = JsonFormat.Shape.STRING)
-    @Field(type = FieldType.Date, name = "date", format = DateFormat.date_hour_minute_second)
-    private LocalDateTime date;
+    @Field(type = FieldType.Date, name = "createdAtDate", format = DateFormat.date_hour_minute_second)
+    private LocalDateTime createdAt;
 
-    @Field(type = FieldType.Text, name = "author-id")
-    @JsonProperty("author-id")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", shape = JsonFormat.Shape.STRING)
+    @Field(type = FieldType.Date, name = "updatedAtDate", format = DateFormat.date_hour_minute_second)
+    private LocalDateTime updatedAt;
+
+    @Field(type = FieldType.Text, name = "authorId")
+    @JsonProperty("authorId")
     private String authorId;
 
-    @Field(type = FieldType.Text, name = "content")
-    private String content;
+    @Field(type = FieldType.Text, name = "body")
+    private String body;
 
     @Field(type = FieldType.Text, name = "tags")
     private String[] tags;
-
 
     public String getId() {
         return id;
@@ -53,14 +57,6 @@ public class Blog {
         this.title = title;
     }
 
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
     public String getAuthorId() {
         return authorId;
     }
@@ -69,12 +65,12 @@ public class Blog {
         this.authorId = authorId;
     }
 
-    public String getContent() {
-        return content;
+    public String getBody() {
+        return body;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public String[] getTags() {
@@ -85,5 +81,17 @@ public class Blog {
         this.tags = tags;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
 }
