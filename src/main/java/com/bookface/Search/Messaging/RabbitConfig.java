@@ -74,12 +74,6 @@ public class RabbitConfig {
     TopicExchange exchangeBlog() { return new TopicExchange("elastic.blogs");}
 
     @Bean
-    public Queue queueFindBlog() { return new Queue("elastic.blogs.search");}
-
-    @Bean
-    public Queue queueFindTags(){ return new Queue("elastic.blogs.searchTags");}
-
-    @Bean
     public Queue queueCreateBlog(){return new Queue("elastic.blogs.create");}
 
     @Bean
@@ -87,14 +81,7 @@ public class RabbitConfig {
 
     @Bean
     public Queue queueDeleteBlog(){return new Queue("elastic.blogs.delete");}
-    @Bean
-    Binding bindingFindBlog(TopicExchange exchangeBlog, Queue queueFindBlog){
-        return BindingBuilder.bind(queueFindBlog).to(exchangeBlog).with("search");
-    }
-    @Bean
-    Binding bindingFindTags(TopicExchange exchangeBlog, Queue queueFindTags){
-        return BindingBuilder.bind(queueFindTags).to(exchangeBlog).with("searchTags");
-    }
+
     @Bean
     Binding bindingCreateBlog(TopicExchange exchangeBlog, Queue queueCreateBlog){
         return BindingBuilder.bind(queueCreateBlog).to(exchangeBlog).with("create");
@@ -114,15 +101,8 @@ public class RabbitConfig {
     DirectExchange exchangeTag() { return new DirectExchange("elastic.tags");}
 
     @Bean
-    public Queue queueSearchTags() { return new Queue("elastic.tags.search");}
-
-    @Bean
     public Queue queueSaveTags(){ return new Queue("elastic.tags.save");}
 
-    @Bean
-    Binding bindingSearchTags(DirectExchange exchangeTag, Queue queueSearchTags){
-        return BindingBuilder.bind(queueSearchTags).to(exchangeTag).with("search");
-    }
     @Bean
     Binding bindingSaveTag(DirectExchange exchangeTag, Queue queueSaveTags) {
         return BindingBuilder.bind(queueSaveTags).to(exchangeTag).with("save");

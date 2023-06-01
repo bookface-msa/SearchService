@@ -6,6 +6,7 @@ import com.bookface.Search.Models.User;
 import com.bookface.Search.Records.BlognUser;
 import com.bookface.Search.Records.PageSettings;
 import com.bookface.Search.Repos.BlogRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class BlogElasticHandler {
     @Autowired
@@ -42,7 +44,6 @@ public class BlogElasticHandler {
 
         for (Blog b : blogs) {
             User user = b.getAuthorId() == null? null :userElasticHandler.getUserWithId(b.getAuthorId()).user();
-//            User user = userController.getUserById(b.getAuthorId());
             BlognUser bu = new BlognUser(b, user);
             res.add(bu);
         }
@@ -50,38 +51,33 @@ public class BlogElasticHandler {
         return res;
     }
 
-    @RabbitListener(queues = "elastic.blogs.search")
     @Cacheable(value = "blogCache")
     public List<BlognUser> search(PageSettings pageSettings) {
 
-        System.out.println("------Blog Search for: " + pageSettings.content());
         String content = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());
         int pageSize = Integer.parseInt(pageSettings.pageSize());
         Page<Blog> blogs = blogRepository.findByBodyOrTitle(content, content, PageRequest.of(pageNum, pageSize));
-        List<BlognUser> res = getUsersForBlogs(blogs.getContent());
-        return res;
+
+        return getUsersForBlogs(blogs.getContent());
     }
 
-    @RabbitListener(queues = "elastic.blogs.searchTags")
+
     @Cacheable(value = "blogCache")
     public List<BlognUser> searchTags(PageSettings pageSettings) {
         String content = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());
         int pageSize = Integer.parseInt(pageSettings.pageSize());
         Page<Blog> blogs = blogRepository.findByTagUsingDeclaredQuery(content, PageRequest.of(pageNum, pageSize));
-        List<BlognUser> res = getUsersForBlogs(blogs.getContent());
-        return res;
+
+        return getUsersForBlogs(blogs.getContent());
     }
 
-//    @RabbitListener(queues = "elastic.blogs.create")
+
     public Blog add(Blog blog) {
-        Blog result = blogRepository.save(blog);
-        System.out.println("Blog with id " + blog.getId() + " added to elasticsearch");
-        return result;
+        return blogRepository.save(blog);
     }
 
-//    @RabbitListener(queues = "elastic.blogs.update")
     public Blog edit(Blog blog) {
         Optional<Blog> oldBlog = blogRepository.findById(blog.getId());
 
@@ -93,13 +89,13 @@ public class BlogElasticHandler {
             updated.setBody(blog.getBody() == null ? updated.getBody() : blog.getBody());
             updated.setTitle(blog.getTitle() == null ? updated.getTitle() : blog.getTitle());
             updated.setAuthorId(blog.getAuthorId() == null ? updated.getAuthorId() : blog.getAuthorId());
-            Blog result = blogRepository.save(updated);
-            return result;
+
+            return blogRepository.save(updated);
         }
         return null;
     }
 
-//    @RabbitListener(queues = "elastic.blogs.delete")
+
     public void delete(String id) {
         blogRepository.deleteById(id);
     }

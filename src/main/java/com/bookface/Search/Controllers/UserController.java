@@ -1,6 +1,5 @@
 package com.bookface.Search.Controllers;
 
-import com.bookface.Search.Commands.CommandTranslator;
 import com.bookface.Search.ElasticHandlers.UserElasticHandler;
 import com.bookface.Search.Models.User;
 import com.bookface.Search.Records.OptionalUser;
