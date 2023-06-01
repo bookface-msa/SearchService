@@ -10,6 +10,7 @@ import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -40,7 +41,7 @@ public class BlogElasticHandler {
         List<BlognUser> res = new ArrayList<BlognUser>();
 
         for (Blog b : blogs) {
-            User user = userElasticHandler.getUserWithId(b.getAuthorId()).user();
+            User user = b.getAuthorId() == null? null :userElasticHandler.getUserWithId(b.getAuthorId()).user();
 //            User user = userController.getUserById(b.getAuthorId());
             BlognUser bu = new BlognUser(b, user);
             res.add(bu);
@@ -50,6 +51,7 @@ public class BlogElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.blogs.search")
+    @Cacheable(value = "blogCache")
     public List<BlognUser> search(PageSettings pageSettings) {
 
         System.out.println("------Blog Search for: " + pageSettings.content());
@@ -62,6 +64,7 @@ public class BlogElasticHandler {
     }
 
     @RabbitListener(queues = "elastic.blogs.searchTags")
+    @Cacheable(value = "blogCache")
     public List<BlognUser> searchTags(PageSettings pageSettings) {
         String content = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());

@@ -40,7 +40,6 @@ public class BlogController {
     TagController tagController;
 
     @GetMapping
-    @Cacheable(value = "blogCache")
     List<BlognUser> get(@RequestParam String content, @RequestParam(defaultValue = "0") String pageNum,
                         @RequestParam(defaultValue = "10") String pageSize) {
 
@@ -48,7 +47,6 @@ public class BlogController {
     }
 
     @GetMapping("/tag")
-    @Cacheable(value = "blogCache")
     List<BlognUser> getTag(@RequestParam String content, @RequestParam(defaultValue = "0") String pageNum,
                            @RequestParam(defaultValue = "10") String pageSize) {
 
@@ -61,10 +59,10 @@ public class BlogController {
 
        Blog res = blogElasticHandler.add(blog);
 
-//        for (String t : blog.getTags()) {
-//            //tagController.add(t);
-//            rabbitTemplate.convertAndSend(exchangeTag.getName(), "save", t); //no need to wait for response
-//        }
+        for (String t : blog.getTags()) {
+            //tagController.add(t);
+            rabbitTemplate.convertAndSend(exchangeTag.getName(), "save", t); //no need to wait for response
+        }
 //        return res;
     }
 

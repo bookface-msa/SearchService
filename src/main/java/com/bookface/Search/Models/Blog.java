@@ -26,13 +26,13 @@ public class Blog {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", shape = JsonFormat.Shape.STRING)
-    @Field(type = FieldType.Date, name = "createdAtDate", format = DateFormat.date_hour_minute_second)
+    @Field(type = FieldType.Date, name = "createdAt", format = DateFormat.date_hour_minute_second)
     private LocalDateTime createdAt;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", shape = JsonFormat.Shape.STRING)
-    @Field(type = FieldType.Date, name = "updatedAtDate", format = DateFormat.date_hour_minute_second)
+    @Field(type = FieldType.Date, name = "updatedAt", format = DateFormat.date_hour_minute_second)
     private LocalDateTime updatedAt;
 
     @Field(type = FieldType.Text, name = "authorId")
