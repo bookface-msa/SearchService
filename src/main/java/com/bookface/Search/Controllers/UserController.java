@@ -6,6 +6,8 @@ import com.bookface.Search.Records.OptionalUser;
 import com.bookface.Search.Records.PageSettings;
 import com.bookface.Search.Repos.UserRepository;
 import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -29,7 +31,7 @@ public class UserController {
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
-    private DirectExchange exchangeUser;
+    private TopicExchange exchangeUser;
     @Autowired
     private UserElasticHandler userElasticHandler;
 
@@ -58,14 +60,17 @@ public class UserController {
         return userElasticHandler.getAll(new PageSettings(username, pageNum, pageSize));
     }
 
-    @PostMapping
-    User addUser(@RequestBody User user) {
-        return userElasticHandler.addUser(user);
+//    @PostMapping
+    @RabbitListener(queues = "elastic.users.create")
+    void addUser(@RequestBody User user) {
+        System.out.println(user.getUsername() + " " + user.getId());
+        userElasticHandler.addUser(user);
     }
 
 
-    @PutMapping
-    User editUser(@RequestBody User user) {
+//    @PutMapping
+    @RabbitListener(queues = "elastic.users.update")
+    void editUser(@RequestBody User user) {
 
         User old = getUserById(user.getId());
 
@@ -74,21 +79,19 @@ public class UserController {
             old.setUsername(user.getUsername() == null ? old.getUsername() : user.getUsername());
             old.setImageurl(user.getImageurl() == null ? old.getImageurl() : user.getImageurl());
 
-            System.out.println(" [x] Requesting to set " + old);
-            User result = (User) rabbitTemplate.convertSendAndReceive(exchangeUser.getName(), "addUser", old);
-            System.out.println(" [.] Got " + result);
-            return result;
+            System.out.println(" [x] Requesting to update user " + old);
+            User result = userElasticHandler.addUser(old);
         } else {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404), "User with id " + user.getId() + " is not found");
         }
     }
 
-    @DeleteMapping
+//    @DeleteMapping
+    @RabbitListener(queues = "elastic.users.delete")
     void deleteUser(@RequestParam String id) {
         if (id.contains(" "))
             throw new ResponseStatusException(HttpStatusCode.valueOf(400), "id cannot contain spaces");
-        System.out.println(" [x] Requesting to delete " + id);
-        rabbitTemplate.convertSendAndReceive(exchangeUser.getName(), "delUser", id);
+        userElasticHandler.delUser(id);
         System.out.println(" [.] Delete request successful for " + id);
     }
 

@@ -29,18 +29,14 @@ public class RabbitConfig {
 //  ==========================USERS===========================
 
     @Bean
-    DirectExchange exchangeUser() {
-        return new DirectExchange("elastic.users");
+    TopicExchange exchangeUser() {
+        return new TopicExchange("elastic.users");
     }
     @Bean
     public Queue queueFindUser() {
         return new Queue("elastic.users.getAll");
     }
 
-    @Bean
-    public Queue queueCreateUser() {
-        return new Queue("elastic.users.addUser");
-    }
 
     @Bean
     public Queue queueFindUserById() {
@@ -48,25 +44,37 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue queueDelUser(){ return new Queue("elastic.users.delUser"); }
+    public Queue queueCreateUser() {
+        return new Queue("elastic.users.create");
+    }
+    @Bean
+    public Queue queueDelUser(){ return new Queue("elastic.users.delete"); }
+
+    @Bean
+    public Queue queueUpdateUser(){ return new Queue("elastic.users.update"); }
 
 
     @Bean
-    Binding bindingFindUser(DirectExchange exchangeUser, Queue queueFindUser) {
+    Binding bindingFindUser(TopicExchange exchangeUser, Queue queueFindUser) {
         return BindingBuilder.bind(queueFindUser).to(exchangeUser).with("getAll");
     }
     @Bean
-    Binding bindingCreateUser(DirectExchange exchangeUser, Queue queueCreateUser) {
-        return BindingBuilder.bind(queueCreateUser).to(exchangeUser).with("addUser");
+    Binding bindingCreateUser(TopicExchange exchangeUser, Queue queueCreateUser) {
+        return BindingBuilder.bind(queueCreateUser).to(exchangeUser).with("create");
     }
     @Bean
-    Binding bindingFindUserById(DirectExchange exchangeUser, Queue queueFindUserById) {
+    Binding bindingFindUserById(TopicExchange exchangeUser, Queue queueFindUserById) {
         return BindingBuilder.bind(queueFindUserById).to(exchangeUser).with("getById");
     }
 
     @Bean
-    Binding bindingDelUser(DirectExchange exchangeUser, Queue queueDelUser){
-        return BindingBuilder.bind(queueDelUser).to(exchangeUser).with("delUser");
+    Binding bindingDelUser(TopicExchange exchangeUser, Queue queueDelUser){
+        return BindingBuilder.bind(queueDelUser).to(exchangeUser).with("delete");
+    }
+
+    @Bean
+    Binding bindingUpdateUser(TopicExchange exchangeUser, Queue queueUpdateUser){
+        return BindingBuilder.bind(queueUpdateUser).to(exchangeUser).with("delete");
     }
 
 //  ==========================BLOGS===========================
