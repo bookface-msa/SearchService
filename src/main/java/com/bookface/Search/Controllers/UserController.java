@@ -5,6 +5,7 @@ import com.bookface.Search.Models.User;
 import com.bookface.Search.Records.OptionalUser;
 import com.bookface.Search.Records.PageSettings;
 import com.bookface.Search.Repos.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -23,11 +24,13 @@ import java.util.List;
 
 
 @SuppressWarnings("unchecked")
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-    UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
@@ -35,13 +38,9 @@ public class UserController {
     @Autowired
     private UserElasticHandler userElasticHandler;
 
-    public UserController(UserRepository userRepository) {
-
-        this.userRepository = userRepository;
-    }
-
     @Cacheable(value = "userCache")
     public User getUserById(String id) {
+        log.info("Fetching user with id {}", id);
         OptionalUser user = userElasticHandler.getUserWithId(id);
 
         if (user != null && !user.isNull())
@@ -52,23 +51,22 @@ public class UserController {
 
     @GetMapping
     @Cacheable(value = "userCache")
-    List<User> getAll(@RequestParam String username, @RequestParam(defaultValue = "0") String pageNum,
+    List<User> getAll(@RequestParam String query, @RequestParam(defaultValue = "0") String pageNum,
                       @RequestParam(defaultValue = "10") String pageSize) {
-        if (username.contains(" "))
-            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "username cannot contain spaces");
+//        if (query.contains(" "))
+//            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "username cannot contain spaces");
 
-        return userElasticHandler.getAll(new PageSettings(username, pageNum, pageSize));
+        log.info("Searching for users with query {}", query);
+
+        return userElasticHandler.getAll(new PageSettings(query, pageNum, pageSize));
     }
 
-//    @PostMapping
     @RabbitListener(queues = "elastic.users.create")
     void addUser(User user) {
-        System.out.println(user.getUsername() + " " + user.getId());
+        log.info(user.getUsername() + " " + user.getId());
         userElasticHandler.addUser(user);
     }
 
-
-//    @PutMapping
     @RabbitListener(queues = "elastic.users.update")
     void editUser(User user) {
 
@@ -79,20 +77,19 @@ public class UserController {
             old.setUsername(user.getUsername() == null ? old.getUsername() : user.getUsername());
             old.setImageurl(user.getImageurl() == null ? old.getImageurl() : user.getImageurl());
 
-            System.out.println(" [x] Requesting to update user " + old);
+            log.info("Requesting to update user " + old);
             User result = userElasticHandler.addUser(old);
         } else {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404), "User with id " + user.getId() + " is not found");
         }
     }
 
-//    @DeleteMapping
     @RabbitListener(queues = "elastic.users.delete")
     void deleteUser(String id) {
         if (id.contains(" "))
             throw new ResponseStatusException(HttpStatusCode.valueOf(400), "id cannot contain spaces");
         userElasticHandler.delUser(id);
-        System.out.println(" [.] Delete request successful for " + id);
+        log.info("Delete request successful for " + id);
     }
 
 

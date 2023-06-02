@@ -32,16 +32,6 @@ public class RabbitConfig {
     TopicExchange exchangeUser() {
         return new TopicExchange("elastic.users");
     }
-    @Bean
-    public Queue queueFindUser() {
-        return new Queue("elastic.users.getAll");
-    }
-
-
-    @Bean
-    public Queue queueFindUserById() {
-        return new Queue("elastic.users.getById");
-    }
 
     @Bean
     public Queue queueCreateUser() {
@@ -49,32 +39,20 @@ public class RabbitConfig {
     }
     @Bean
     public Queue queueDelUser(){ return new Queue("elastic.users.delete"); }
-
     @Bean
     public Queue queueUpdateUser(){ return new Queue("elastic.users.update"); }
 
-
-    @Bean
-    Binding bindingFindUser(TopicExchange exchangeUser, Queue queueFindUser) {
-        return BindingBuilder.bind(queueFindUser).to(exchangeUser).with("getAll");
-    }
     @Bean
     Binding bindingCreateUser(TopicExchange exchangeUser, Queue queueCreateUser) {
         return BindingBuilder.bind(queueCreateUser).to(exchangeUser).with("create");
     }
     @Bean
-    Binding bindingFindUserById(TopicExchange exchangeUser, Queue queueFindUserById) {
-        return BindingBuilder.bind(queueFindUserById).to(exchangeUser).with("getById");
-    }
-
-    @Bean
     Binding bindingDelUser(TopicExchange exchangeUser, Queue queueDelUser){
         return BindingBuilder.bind(queueDelUser).to(exchangeUser).with("delete");
     }
-
     @Bean
     Binding bindingUpdateUser(TopicExchange exchangeUser, Queue queueUpdateUser){
-        return BindingBuilder.bind(queueUpdateUser).to(exchangeUser).with("delete");
+        return BindingBuilder.bind(queueUpdateUser).to(exchangeUser).with("update");
     }
 
 //  ==========================BLOGS===========================

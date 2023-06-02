@@ -4,6 +4,7 @@ import com.bookface.Search.Models.User;
 import com.bookface.Search.Records.OptionalUser;
 import com.bookface.Search.Records.PageSettings;
 import com.bookface.Search.Repos.UserRepository;
+import com.fasterxml.jackson.datatype.jdk8.OptionalIntDeserializer;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,46 +20,43 @@ public class UserElasticHandler {
     @Autowired
     UserRepository userRepository;
 
-
-//    @RabbitListener(queues = "elastic.users.getAll")
     public List<User> getAll(PageSettings pageSettings) {
         String username = pageSettings.content();
         int pageNum = Integer.parseInt(pageSettings.pageNum());
         int pageSize = Integer.parseInt(pageSettings.pageSize());
 
-        System.out.println(" [x] Received request for " + username);
         Page<User> result = userRepository.findByUsernameContaining(username, PageRequest.of(pageNum,pageSize));
-        System.out.println(" [.] Returned " + result);
         return result.getContent();
     }
 
-//    @RabbitListener(queues = "elastic.users.getById")
     public OptionalUser getUserWithId(String id) {
-        System.out.println(" [x] Received request for user with id " + id);
         Optional<User> result = userRepository.findById(id);
 
         if(result.isPresent()) {
-            System.out.println(" [.] Returned " + result);
             return OptionalUser.builder().isNull(false).user(result.get()).build();
         }
 
-        System.out.println(" [.] Returned " + result);
         return OptionalUser.builder().isNull(true).build();
+    }
+
+    public OptionalUser getUserWithUsername(String username){
+        List<User> results = userRepository.findByUsername(username);
+
+        if(results.isEmpty()){
+            return new OptionalUser(true, null);
+        }
+        return new OptionalUser(false, results.get(0));
     }
 
 
     public User addUser(User user){
-        System.out.println(" [x] Received request to add " + user);
         User saved = userRepository.save(user);
-        System.out.println(" [.] Returned " + saved);
         return saved;
     }
 
 
     public String delUser(String id){
-        System.out.println(" [x] Received request to delete " + id);
         userRepository.deleteById(id);
-        System.out.println(" [.] Deleted " + id);
         return "success";
     }
 

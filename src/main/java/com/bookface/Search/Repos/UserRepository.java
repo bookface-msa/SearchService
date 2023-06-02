@@ -10,5 +10,5 @@ import java.util.List;
 public interface UserRepository extends ElasticsearchRepository<User, String> {
 
     Page<User> findByUsernameContaining(String username, Pageable pageable);
-
+    List<User> findByUsername(String username);
 }
