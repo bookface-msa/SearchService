@@ -53,8 +53,6 @@ public class UserController {
     @Cacheable(value = "userCache")
     List<User> getAll(@RequestParam String query, @RequestParam(defaultValue = "0") String pageNum,
                       @RequestParam(defaultValue = "10") String pageSize) {
-//        if (query.contains(" "))
-//            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "username cannot contain spaces");
 
         log.info("Searching for users with query {}", query);
 
