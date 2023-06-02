@@ -62,7 +62,7 @@ public class UserController {
 
 //    @PostMapping
     @RabbitListener(queues = "elastic.users.create")
-    void addUser(@RequestBody User user) {
+    void addUser(User user) {
         System.out.println(user.getUsername() + " " + user.getId());
         userElasticHandler.addUser(user);
     }
@@ -70,7 +70,7 @@ public class UserController {
 
 //    @PutMapping
     @RabbitListener(queues = "elastic.users.update")
-    void editUser(@RequestBody User user) {
+    void editUser(User user) {
 
         User old = getUserById(user.getId());
 
@@ -88,7 +88,7 @@ public class UserController {
 
 //    @DeleteMapping
     @RabbitListener(queues = "elastic.users.delete")
-    void deleteUser(@RequestParam String id) {
+    void deleteUser(String id) {
         if (id.contains(" "))
             throw new ResponseStatusException(HttpStatusCode.valueOf(400), "id cannot contain spaces");
         userElasticHandler.delUser(id);
