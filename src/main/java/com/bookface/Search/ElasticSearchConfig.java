@@ -26,14 +26,14 @@ import java.security.cert.CertificateFactory;
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
 
-    @Value("${elastic.username}")
-    String username;
-
-    @Value("${elastic.password}")
-    String password;
-
-    @Value("${elastic.cert}")
-    String cert;
+//    @Value("${elastic.username}")
+//    String username;
+//
+//    @Value("${elastic.password}")
+//    String password;
+//
+//    @Value("${elastic.cert}")
+//    String cert;
 
 
     @Override
