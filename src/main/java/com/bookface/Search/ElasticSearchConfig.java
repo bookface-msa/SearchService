@@ -35,6 +35,9 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
     @Value("${elastic.cert}")
     String cert;
 
+    @Value("${elastic.host}")
+    String host;
+
 
     @Override
     public ClientConfiguration clientConfiguration() {
@@ -64,7 +67,7 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
         }
 
         return ClientConfiguration.builder()
-                .connectedTo("localhost:9200")
+                .connectedTo(host+":9200")
                 .usingSsl(context)
                 .withBasicAuth(username, password)
                 .build();

@@ -6,7 +6,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
-@PropertySource("classpath:config.properties")
+@PropertySource("classpath:application.properties")
 @EnableCaching
 public class SearchApplication {
 
