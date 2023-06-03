@@ -55,9 +55,8 @@ public class UserElasticHandler {
     }
 
 
-    public String delUser(String id){
+    public void delUser(String id){
         userRepository.deleteById(id);
-        return "success";
     }
 
 

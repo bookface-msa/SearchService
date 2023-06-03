@@ -39,35 +39,35 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
     @Override
     public ClientConfiguration clientConfiguration() {
 
-        SSLContext context = null;
-        try {
-
-            KeyStore ks = KeyStore.getInstance("pkcs12");
-            ks.load(null, null);
-
-            FileInputStream fis = new FileInputStream(cert);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            Certificate cert = cf.generateCertificate(bis);
-
-            ks.setCertificateEntry("ca", cert);
-
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init(ks);
-
-            context = SSLContext.getInstance("TLS");
-            context.init(null, tmf.getTrustManagers(), null);
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException |
-                 KeyManagementException e) {
-            throw new RuntimeException(e);
-        }
+//        SSLContext context = null;
+//        try {
+//
+//            KeyStore ks = KeyStore.getInstance("pkcs12");
+//            ks.load(null, null);
+//
+//            FileInputStream fis = new FileInputStream(cert);
+//            BufferedInputStream bis = new BufferedInputStream(fis);
+//
+//            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+//            Certificate cert = cf.generateCertificate(bis);
+//
+//            ks.setCertificateEntry("ca", cert);
+//
+//            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+//            tmf.init(ks);
+//
+//            context = SSLContext.getInstance("TLS");
+//            context.init(null, tmf.getTrustManagers(), null);
+//        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException |
+//                 KeyManagementException e) {
+//            throw new RuntimeException(e);
+//        }
 
         return ClientConfiguration.builder()
-                .connectedTo("localhost:9200")
-                .usingSsl(context)
-                .withBasicAuth(username, password)
-                .build();
+                .connectedTo("localhost:9200").build();
+//                .usingSsl(context)
+//                .withBasicAuth(username, password)
+
 
     }
 
