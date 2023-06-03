@@ -25,87 +25,90 @@ import java.security.cert.CertificateFactory;
 @ComponentScan(basePackages = "com.bookface.Search")
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
-
-    @Value("${elastic.username}")
-    String username;
-
-    @Value("${elastic.password}")
-    String password;
-
-    @Value("${elastic.cert}")
-    String cert;
+    // @Value("${elastic.username}")
+    // String username;
+    //
+    // @Value("${elastic.password}")
+    // String password;
+    //
+    // @Value("${elastic.cert}")
+    // String cert;
 
     @Value("${elastic.host}")
     String host;
 
-
     @Override
     public ClientConfiguration clientConfiguration() {
 
-        SSLContext context = null;
-        try {
 
-            KeyStore ks = KeyStore.getInstance("pkcs12");
-            ks.load(null, null);
-
-            FileInputStream fis = new FileInputStream(cert);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            Certificate cert = cf.generateCertificate(bis);
-
-            ks.setCertificateEntry("ca", cert);
-
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init(ks);
-
-            context = SSLContext.getInstance("TLS");
-            context.init(null, tmf.getTrustManagers(), null);
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException |
-                 KeyManagementException e) {
-            throw new RuntimeException(e);
-        }
+        // SSLContext context = null;
+        // try {
+        //
+        // KeyStore ks = KeyStore.getInstance("pkcs12");
+        // ks.load(null, null);
+        //
+        // FileInputStream fis = new FileInputStream(cert);
+        // BufferedInputStream bis = new BufferedInputStream(fis);
+        //
+        // CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        // Certificate cert = cf.generateCertificate(bis);
+        //
+        // ks.setCertificateEntry("ca", cert);
+        //
+        // TrustManagerFactory tmf =
+        // TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        // tmf.init(ks);
+        //
+        // context = SSLContext.getInstance("TLS");
+        // context.init(null, tmf.getTrustManagers(), null);
+        // } catch (KeyStoreException | IOException | NoSuchAlgorithmException |
+        // CertificateException |
+        // KeyManagementException e) {
+        // throw new RuntimeException(e);
+        // }
 
         return ClientConfiguration.builder()
-                .connectedTo(host+":9200")
-                .usingSsl(context)
-                .withBasicAuth(username, password)
-                .build();
+                .connectedTo(host+":9200").build();
+        // .usingSsl(context)
+        // .withBasicAuth(username, password)
 
     }
 
-//    @Bean
-//    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-//        Jackson2ObjectMapperBuilder builder =
-//                new Jackson2ObjectMapperBuilder()
-//                        .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-//                        .serializers(
-//                                new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")))
-//                        .serializationInclusion(JsonInclude.Include.NON_NULL);
-//        return new MappingJackson2HttpMessageConverter(builder.build());
-//    }
+    // @Bean
+    // public MappingJackson2HttpMessageConverter
+    // mappingJackson2HttpMessageConverter() {
+    // Jackson2ObjectMapperBuilder builder =
+    // new Jackson2ObjectMapperBuilder()
+    // .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    // .serializers(
+    // new
+    // LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")))
+    // .serializationInclusion(JsonInclude.Include.NON_NULL);
+    // return new MappingJackson2HttpMessageConverter(builder.build());
+    // }
 
-//    @Bean
-//    public RestClient restClient(){
-//        final ClientConfiguration clientConfiguration = clientConfiguration();
-//
-//    }
+    // @Bean
+    // public RestClient restClient(){
+    // final ClientConfiguration clientConfiguration = clientConfiguration();
+    //
+    // }
 
-//    @Bean
-//    public RestClient getRestClient() {
-//        RestClient restClient = RestClient.builder(new HttpHost("localhost", 9200)).build();
-//        return restClient;
-//    }
-//    @Bean
-//    public ElasticsearchTransport getElasticsearchTransport() {
-//        return new RestClientTransport(getRestClient(), new JacksonJsonpMapper());
-//    }
-//
-//    @Bean
-//    public ElasticsearchClient getElasticsearchClient() {
-//        ElasticsearchClient client = new ElasticsearchClient(getElasticsearchTransport());
-//        return client;
-//    }
-
+    // @Bean
+    // public RestClient getRestClient() {
+    // RestClient restClient = RestClient.builder(new HttpHost("localhost",
+    // 9200)).build();
+    // return restClient;
+    // }
+    // @Bean
+    // public ElasticsearchTransport getElasticsearchTransport() {
+    // return new RestClientTransport(getRestClient(), new JacksonJsonpMapper());
+    // }
+    //
+    // @Bean
+    // public ElasticsearchClient getElasticsearchClient() {
+    // ElasticsearchClient client = new
+    // ElasticsearchClient(getElasticsearchTransport());
+    // return client;
+    // }
 
 }

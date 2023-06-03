@@ -24,6 +24,9 @@ public class CacheConfig {
                 .addModule(new JavaTimeModule())
                 .build();
 
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig();
+
+
         return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(2))
                 .disableCachingNullValues()

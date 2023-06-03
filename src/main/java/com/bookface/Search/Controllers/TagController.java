@@ -14,7 +14,7 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 @Slf4j
 @RestController
-@RequestMapping("/tags")
+@RequestMapping("/search/tags")
 public class TagController {
 
 

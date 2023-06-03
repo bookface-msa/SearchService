@@ -26,7 +26,7 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 @Slf4j
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/search/user")
 public class UserController {
 
     @Autowired

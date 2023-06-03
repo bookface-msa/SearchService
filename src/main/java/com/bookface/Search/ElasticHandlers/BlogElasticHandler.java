@@ -43,7 +43,7 @@ public class BlogElasticHandler {
         List<BlognUser> res = new ArrayList<BlognUser>();
 
         for (Blog b : blogs) {
-            User user = b.getAuthorId() == null? null :userElasticHandler.getUserWithUsername(b.getAuthorId()).user();
+            User user = b.getAuthorId() == null? null :userElasticHandler.getUserWithId(b.getAuthorId()).user();
             BlognUser bu = new BlognUser(b, user);
             res.add(bu);
         }

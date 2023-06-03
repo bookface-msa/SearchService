@@ -1,0 +1,10 @@
+curl \
+    -F file=@target/Search-0.0.1-SNAPSHOT.jar \
+    -F propsFile=@production.properties \
+    -F data='{
+        "name": "search",
+        "port": "8080",
+        "maxInstanceCount": 3,
+        "deps": []
+    }' \
+    http://localhost:8080/v1/service/deploy

@@ -22,7 +22,7 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 @Slf4j
 @RestController
-@RequestMapping("/blog")
+@RequestMapping("/search/blog")
 public class BlogController {
     @Autowired
     private BlogRepository blogRepository;
